@@ -35,7 +35,7 @@ jobs:
         sudo apt-get install -y ansible sshpass
         
     - name: Run Ansible Playbook to Deploy
-      run: ansible-playbook -i inventory.ini deploy-playbook.yml
+      run: ansible-playbook -i inventory.ini deploy-playbook.yml -e "ansible_host=tcp://hhswe-203-95-199-46.run.pinggy-free.link:39655"
       env:
         # Prevents Ansible from asking "Are you sure you want to continue connecting"
         ANSIBLE_HOST_KEY_CHECKING: "False"
