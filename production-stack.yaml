@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: idcard-app-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: idcard-stack
+  template:
+    metadata:
+      labels:
+        app: idcard-stack
+    spec:
+      containers:
+        # CONTAINER 1: The Custom Web Server (Java + Nginx + SSH)
+        - name: web-server-container
+          image: local/idcard-web:v1
+          imagePullPolicy: Never # Forces Kubernetes to use the image we built locally
+          ports:
+            - containerPort: 8080 # Nginx port
+            - containerPort: 2222 # SSH port
+          env:
+            # We tell Spring Boot to run on 8081 so Nginx on 8080 can forward traffic to it
+            - name: SERVER_PORT
+              value: "8081"
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://127.0.0.1:3306/A-LIM-Kity-db?useSSL=false" # CHANGE TO YOUR CORRECT DB NAME
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "root"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "Hello@123"
+
+        # CONTAINER 2: The MySQL Database Engine
+        - name: mysql-database-container
+          image: mysql:8
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "Hello@123"
+            - name: MYSQL_DATABASE
+              value: "A-LIM-Kity-db" # ⚠️ CHANGE THIS TO YOUR EXACT ASSIGNMENT FORMAT!
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: idcard-public-service
+spec:
+  type: NodePort
+  selector:
+    app: idcard-stack
+  ports:
+    - name: website
+      protocol: TCP
+      port: 8443
+      targetPort: 8080 # Forwards external 8443 target path to Nginx on 8080
+      nodePort: 30443  # Accessible at http://YOUR_DROPLET_IP:30443
+    - name: ssh
+      protocol: TCP
+      port: 2222
+      targetPort: 2222
+      nodePort: 32222  # Accessible via ssh root@YOUR_DROPLET_IP -p 32222
