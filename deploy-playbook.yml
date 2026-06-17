@@ -45,3 +45,9 @@
 
     - name: Backup the MySQL database
       shell: "mysqldump -h 127.0.0.1 -u {{ db_user }} -p{{ db_pass }} {{ db_name }} > /root/backup_{{ ansible_date_time.iso8601_basic_short }}.sql"
+
+    - name: Download backup SQL to your local folder for submission
+      fetch:
+        src: "/root/backup_{{ ansible_date_time.iso8601_basic_short }}.sql"
+        dest: "{{ playbook_dir }}/"
+        flat: yes
