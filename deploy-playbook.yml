@@ -1,0 +1,38 @@
+---
+- name: Deploy, Build, Test, and Backup Application
+  hosts: webservers
+  become: yes
+  vars:
+    # IMPORTANT: Update this to match the exact path of your project on the Web Server
+    project_dir: "/root/Final-DevOP/demo" 
+    db_name: "A-LIM_Kity-db"
+    db_user: "root"
+    db_pass: "Hello@123"
+
+  tasks:
+    - name: Pull latest code from Git main branch (Forces overwrite of local changes)
+      git:
+        repo: "https://github.com/Ty-168/Final-DevOP.git"
+        dest: "{{ project_dir }}"
+        version: main
+        force: yes
+        update: yes
+
+    - name: Run Maven tests (Forces SQLite test profile)
+      command: mvn test -Dspring.profiles.active=test
+      args:
+        chdir: "{{ project_dir }}"
+
+    - name: Build project using Maven (skip tests during packaging)
+      command: mvn clean package -DskipTests
+      args:
+        chdir: "{{ project_dir }}"
+
+    - name: Generate timestamp for backup
+      setup:
+        filter: ansible_date_time
+
+    - name: Backup the MySQL database
+      # Note: If your MySQL is running inside a Docker/Kubernetes container on the VM, 
+      # change this command to: kubectl exec $(kubectl get pods -l app=idcard-stack -o jsonpath="{.items[0].metadata.name}") -c mysql-database-container -- mysqldump -u {{ db_user }} -p{{ db_pass }} {{ db_name }} > /root/backup_{{ ansible_date_time.iso8601_basic_short }}.sql
+      shell: "mysqldump -u {{ db_user }} -p{{ db_pass }} {{ db_name }} > /root/backup_{{ ansible_date_time.iso8601_basic_short }}.sql"
