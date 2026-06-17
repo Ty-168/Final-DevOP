@@ -10,21 +10,23 @@
     db_pass: "Hello@123"
 
   tasks:
-    - name: Ensure Git and Maven are installed on the server
+    - name: Ensure Git, Maven, and Java 21 JDK are installed on the server
       apt:
         name: 
           - git
           - maven
+          - openjdk-21-jdk-headless
         state: present
         update_cache: yes
 
     - name: Pull latest code from Git main branch (Forces overwrite of local changes)
       git:
-        repo: "https://github.com/Ty-168/Final-DevOP.git"
+        repo: "git@github.com:Ty-168/Final-DevOP.git"
         dest: "{{ project_dir }}"
         version: main
         force: yes
         update: yes
+        accept_hostkey: yes
 
     - name: Run Maven tests (Forces SQLite test profile)
       command: mvn test -Dspring.profiles.active=test
