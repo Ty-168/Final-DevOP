@@ -5,7 +5,7 @@
   vars:
     # IMPORTANT: Update this to match the exact path of your project on the Web Server
     project_dir: "/root/Final-DevOP/demo" 
-    db_name: "A-LIM_Kity-db"
+    db_name: "A-LIM-Kity-db"
     db_user: "root"
     db_pass: "Hello@123"
 
@@ -16,6 +16,7 @@
           - git
           - maven
           - openjdk-21-jdk-headless
+          - mysql-client
         state: present
         update_cache: yes
 
@@ -43,6 +44,4 @@
         filter: ansible_date_time
 
     - name: Backup the MySQL database
-      # Note: If your MySQL is running inside a Docker/Kubernetes container on the VM, 
-      # change this command to: kubectl exec $(kubectl get pods -l app=idcard-stack -o jsonpath="{.items[0].metadata.name}") -c mysql-database-container -- mysqldump -u {{ db_user }} -p{{ db_pass }} {{ db_name }} > /root/backup_{{ ansible_date_time.iso8601_basic_short }}.sql
-      shell: "mysqldump -u {{ db_user }} -p{{ db_pass }} {{ db_name }} > /root/backup_{{ ansible_date_time.iso8601_basic_short }}.sql"
+      shell: "mysqldump -h 127.0.0.1 -u {{ db_user }} -p{{ db_pass }} {{ db_name }} > /root/backup_{{ ansible_date_time.iso8601_basic_short }}.sql"
