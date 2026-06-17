@@ -1,0 +1,58 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-test-deploy:
+    # Note: Because your web server is running on localhost, GitHub's cloud runners won't be able to reach it. 
+    # For a real project, you would either use a public VM IP, or set up a GitHub "Self-Hosted Runner" on your desktop.
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      
+    - name: Set up Java 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+        
+    - name: Build and Test with Maven
+      run: |
+        # Run tests with SQLite
+        mvn clean test -Dspring.profiles.active=test
+        
+        # Package the JAR file
+        mvn package -DskipTests
+        
+    - name: Install Ansible
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ansible sshpass
+        
+    - name: Run Ansible Playbook to Deploy
+      run: ansible-playbook -i inventory.ini deploy-playbook.yml
+      env:
+        # Prevents Ansible from asking "Are you sure you want to continue connecting"
+        ANSIBLE_HOST_KEY_CHECKING: "False"
+
+    - name: Send Email on Failure
+      if: failure()
+      uses: dawidd6/action-send-mail@v3
+      with:
+        # Requires configuring GitHub Secrets for your SMTP account
+        server_address: smtp.gmail.com
+        server_port: 465
+        secure: true
+        username: ${{ secrets.EMAIL_USERNAME }}
+        password: ${{ secrets.EMAIL_PASSWORD }}
+        subject: "Build Failed: ${{ github.repository }}"
+        
+        # Sends to the requested email AND the developer who pushed the commit
+        to: srengty@gmail.com,${{ github.event.pusher.email }}
+        from: "GitHub Actions"
+        body: "The build or test phase failed for ${{ github.repository }}. Please check the Actions tab on GitHub for the console output."
