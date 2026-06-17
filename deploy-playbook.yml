@@ -22,7 +22,7 @@
 
     - name: Pull latest code from Git main branch (Forces overwrite of local changes)
       git:
-        repo: "git@github.com:Ty-168/Final-DevOP.git"
+        repo: "https://github.com/Ty-168/Final-DevOP.git"
         dest: "{{ project_dir }}"
         version: main
         force: yes
