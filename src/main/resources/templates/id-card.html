@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${profile.fullName} + ' — ID Card'">ID Card</title>
+    <style>
+        /* ── Card Reset ─────────────────────────────────────────────────── */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        /* ── Card Shell ─────────────────────────────────────────────────── */
+        .card {
+            width: 340px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,.25);
+            background: #fff;
+            position: relative;
+        }
+
+        /* ── Header Banner ──────────────────────────────────────────────── */
+        .card-header {
+            background: var(--primary, #1d4ed8);
+            color: #fff;
+            padding: 18px 20px 60px;
+            text-align: center;
+            position: relative;
+        }
+
+        .card-header .org-name {
+            font-size: 13px;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            opacity: .85;
+        }
+
+        .card-header .tagline {
+            font-size: 10px;
+            opacity: .65;
+            margin-top: 3px;
+        }
+
+        /* ── Profile Photo ──────────────────────────────────────────────── */
+        .photo-wrapper {
+            position: absolute;
+            bottom: -44px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 16px rgba(0,0,0,.18);
+            overflow: hidden;
+            background: var(--secondary, #e0e7ff);
+        }
+
+        .photo-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: var(--primary, #1d4ed8);
+            font-weight: 700;
+        }
+
+        /* ── Card Body ──────────────────────────────────────────────────── */
+        .card-body {
+            padding: 56px 24px 16px;
+            text-align: center;
+            color: var(--text-color, #111827);
+        }
+
+        .full-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .title {
+            font-size: 12px;
+            color: var(--primary, #1d4ed8);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+        }
+
+        .department {
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: var(--secondary, #e0e7ff);
+            color: var(--primary, #1d4ed8);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .6px;
+            padding: 2px 10px;
+            border-radius: 99px;
+            margin-top: 8px;
+            text-transform: uppercase;
+        }
+
+        /* ── Info Grid ──────────────────────────────────────────────────── */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 16px 0;
+            text-align: left;
+        }
+
+        .info-item label {
+            display: block;
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            color: #9ca3af;
+        }
+
+        .info-item span {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-color, #111827);
+        }
+
+        /* ── Reg Number ─────────────────────────────────────────────────── */
+        .reg-number {
+            background: var(--secondary, #e0e7ff);
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin: 8px 0;
+            text-align: center;
+        }
+
+        .reg-number label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .8px;
+            color: #6b7280;
+        }
+
+        .reg-number .reg-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--primary, #1d4ed8);
+            letter-spacing: 1.5px;
+        }
+
+        /* ── QR + Barcode ───────────────────────────────────────────────── */
+        .codes-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 10px 0;
+        }
+
+        .qr-block img {
+            width: 72px;
+            height: 72px;
+            border-radius: 8px;
+        }
+
+        .barcode-block img {
+            max-width: 180px;
+            height: 44px;
+        }
+
+        /* ── Footer ─────────────────────────────────────────────────────── */
+        .card-footer {
+            background: var(--primary, #1d4ed8);
+            color: rgba(255,255,255,.7);
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+        }
+    </style>
+
+    <!-- Inject template colours as CSS custom properties -->
+    <style th:if="${template != null}"
+           th:inline="text">
+        :root {
+            --primary:    [(${template.primaryColor})];
+            --secondary:  [(${template.secondaryColor})];
+            --text-color: [(${template.textColor})];
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+
+    <!-- ── Header ── -->
+    <div class="card-header">
+        <div class="org-name"
+             th:text="${template != null ? template.organizationName : 'My Organisation'}">
+            My Organisation
+        </div>
+        <div class="tagline"
+             th:text="${template != null ? template.tagline : ''}"></div>
+
+        <!-- Profile Photo -->
+        <div class="photo-wrapper">
+            <!-- Show uploaded photo if available -->
+            <img th:if="${photoBase64 != null and !#strings.isEmpty(photoBase64)}"
+                 th:src="${photoBase64}"
+                 alt="Profile photo"/>
+            <!-- Initials fallback -->
+            <div th:unless="${photoBase64 != null and !#strings.isEmpty(photoBase64)}"
+                 class="photo-placeholder"
+                 th:text="${#strings.substring(profile.fullName, 0, 1)}">?</div>
+        </div>
+    </div>
+
+    <!-- ── Body ── -->
+    <div class="card-body">
+
+        <div class="full-name" th:text="${profile.fullName}">Full Name</div>
+        <div class="title"     th:text="${profile.title}">Title / Program</div>
+        <div class="department" th:text="${profile.department}">Department</div>
+        <div class="badge"     th:text="${profile.type}">STUDENT</div>
+
+        <!-- Registration Number -->
+        <div class="reg-number">
+            <label>Registration Number</label>
+            <div class="reg-value" th:text="${profile.registrationNumber}">2026-ENG-001</div>
+        </div>
+
+        <!-- Info Grid -->
+        <div class="info-grid">
+            <div class="info-item" th:if="${profile.email != null}">
+                <label>Email</label>
+                <span th:text="${profile.email}">—</span>
+            </div>
+            <div class="info-item" th:if="${profile.phone != null}">
+                <label>Phone</label>
+                <span th:text="${profile.phone}">—</span>
+            </div>
+            <div class="info-item" th:if="${profile.bloodGroup != null}">
+                <label>Blood Group</label>
+                <span th:text="${profile.bloodGroup}">—</span>
+            </div>
+            <div class="info-item" th:if="${profile.dateOfBirth != null}">
+                <label>Date of Birth</label>
+                <span th:text="${#temporals.format(profile.dateOfBirth, 'dd MMM yyyy')}">—</span>
+            </div>
+            <div class="info-item" th:if="${profile.issueDate != null}">
+                <label>Issued</label>
+                <span th:text="${#temporals.format(profile.issueDate, 'dd MMM yyyy')}">—</span>
+            </div>
+            <div class="info-item" th:if="${profile.expiryDate != null}">
+                <label>Expires</label>
+                <span th:text="${#temporals.format(profile.expiryDate, 'dd MMM yyyy')}">—</span>
+            </div>
+        </div>
+
+        <!-- QR Code + Barcode -->
+        <div class="codes-row">
+            <div class="qr-block" th:if="${qrCodeBase64 != null}">
+                <img th:src="${qrCodeBase64}" alt="QR Code (Verification)"/>
+            </div>
+            <div class="barcode-block" th:if="${barcodeBase64 != null}">
+                <img th:src="${barcodeBase64}" alt="Barcode"/>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Footer ── -->
+    <div class="card-footer">
+        <span th:text="'UUID: ' + ${profile.uuid}">uuid</span>
+        <span>VALID ID CARD</span>
+    </div>
+
+</div>
+
+</body>
+</html>
