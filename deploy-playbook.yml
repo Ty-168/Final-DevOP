@@ -10,6 +10,14 @@
     db_pass: "Hello@123"
 
   tasks:
+    - name: Ensure Git and Maven are installed on the server
+      apt:
+        name: 
+          - git
+          - maven
+        state: present
+        update_cache: yes
+
     - name: Pull latest code from Git main branch (Forces overwrite of local changes)
       git:
         repo: "https://github.com/Ty-168/Final-DevOP.git"
