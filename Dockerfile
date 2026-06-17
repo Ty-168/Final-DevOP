@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     openjdk-21-jre-headless \
     nginx \
     openssh-server \
+    php-cli \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
