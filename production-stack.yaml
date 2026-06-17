@@ -47,7 +47,7 @@ kind: Service
 metadata:
   name: idcard-public-service
 spec:
-  type: NodePort
+  type: LoadBalancer
   selector:
     app: idcard-stack
   ports:
@@ -55,9 +55,7 @@ spec:
       protocol: TCP
       port: 8443
       targetPort: 8080 # Forwards external 8443 target path to Nginx on 8080
-      nodePort: 30443  # Accessible at http://YOUR_DROPLET_IP:30443
     - name: ssh
       protocol: TCP
       port: 2222
       targetPort: 2222
-      nodePort: 32222  # Accessible via ssh root@YOUR_DROPLET_IP -p 32222
